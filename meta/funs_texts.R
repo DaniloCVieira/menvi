@@ -105,7 +105,54 @@ data_migrate<-function(data,newdata, newname){
 
 
 textoffline<-function(...)({
-  fluidRow(strong("Unzip all files in your R's working directory, and run the functions below:"))
+  column(12,
+        h4(strong("Running offline"), icon("fas fa-windows"), icon("fas fa-apple"), icon("fas fa-linux")),
+        p("The last version of menvi is also available in ",a("GitHub",href="https://github.com/DaniloCVieira/menvi")),
+        p("Follow the steps bellow to get started with menvi:"),
+       column(12,style="background: white",
+              p(style="margin-top:20px; ",
+                strong("1."),"Install",a("R", href="https://cran.r-project.org/")," and ",a("RStudio",href="https://www.rstudio.com/products/rstudio/download/")," if you haven't done so already;"),
+              p(strong("2.")," If you are a Mac or Linux user, please follow the commands in the section ",strong("'Shell commands'")," before proceeding;"),
+              p(strong("3.")," Initate a new script;"),
+              p(strong("4.")," Install shiny package if it is not already installed;"),
+              p(strong("5.")," Run the functions below;")),
+        fluidRow(style="margin-left: 40px;margin-right: 40px;",
+               column(12,style="background: white;font-family: Lucida Console;border: 1px solid SeaGreen; margin: 10 10 10 10",
+                      p(style="margin-top:20px",
+                        code(
+                        'library(shiny)')),
+                      p(code("runGitHub('menvi','DaniloCVieira', ref='main')")))),
+        p(style="margin-top:20px; ","The app will automatically install the required packages, and may take some time if this is your first time using the application. The next time, it shouldn't take more than a few seconds."),
+
+        p(style="border-top: 1px solid",
+          h4(style="margin-top:20px",
+           strong("Shell commands: Mac OS and Linux systems"), icon("fas fa-apple"), icon("fas fa-linux"))),
+        p("Mac and Linux Users may require some additional commands before installing or running the application for the first time;"),
+
+       column(12,style="background: white; margin-bottom: 20px",
+              p(style="margin-top:20px; ",
+                strong("If you are a Mac User:", icon("fas fa-apple")), style="color: SeaGreen"),
+              p(style="margin-top:20px;",
+                strong("1.")," Open a new terminal;"),
+              p(strong("2.")," Type the following into your terminal:"),
+              p(code("xcode-select -p"), "it will open a prompt"),
+              p(strong("3.")," Install the Command Line Tools from the prompt;"),
+              p(strong("4.")," Try run'", code("runGitHub('menvi','DaniloCVieira', ref='main')"),"again"),
+              em('For other issues, please contact the author.')
+              ),
+
+       column(12,style="background: white",
+              p(style="margin-top:20px; margin-left: 10px;",
+                strong("If you are a Linux User:",icon("fas fa-linux")), style="color: SeaGreen"),
+              p(strong("1.")," Open a new terminal;"),
+              p(strong("2.")," Type the following into your terminal:"),
+              p(code("sudo apt install libgdal-dev")),
+              p(strong("3.")," Once the above installation is completed, type the next command into your terminal: "),
+              p(code("sudo apt install libudunits2-dev")),
+              p(strong("4.")," Try run'", code("runGitHub('menvi','DaniloCVieira', ref='main')"),"again;"),
+              em('For other issues, please contact the author.'))
+  )
+
 
 })
 

@@ -299,25 +299,19 @@ dashboardBody(
                           tabPanel(
                             strong("Running offline"),value="intro4",
                             column(12,
-                                   column(12, br(), textoffline()),
-                                   br(),
-                                   br(),
-                                   column(12,  downloadButton("downloadData", "Download zip file")),
-                                   column(12,style = "margin-top: 30px;margin-bottom: 30px; font-size: 15px; background: white; color: Blue",
-                                          column(12, br(), style = "color: Blue;font-family: Lucida Console;",
-                                                 p("source('menvi.R')"),
-                                                 p("menvi()")
-                                          )
-                                   ),
-
-
-                            )
+                                   column(12, br(), textoffline()))
 
                           ),
                           tabPanel(strong("Version"),value="intro5",
-                                   column(
-                                     12, br(), br(), strong("Version: 1.1.0"), p("09/08/2021")
-                                   ))
+                            column(12, style="margin-top 25px",
+                                   p("menvi"),
+                                   p(strong("Version: 1.1.0")), p("06/10/2021"),
+                              p("developed in  R, version 4.0.5; RStudio, version 1.4, and Shiny package, version 1.6.0."),
+
+
+
+                            )
+                          )
                         )
                 ),
                 # training panel
@@ -331,16 +325,7 @@ dashboardBody(
                                uiOutput("som_control"),
 
                         ),
-                        tabsetPanel(
-                          id = "som_tab",
-                          tabPanel(
-                            strong("1. Training"), value = "som_tab1",
-                            uiOutput("training_panel")
-
-                          )
-
-
-                        )
+                        uiOutput("som_panels")
                 ),
                 tabItem(tabName = "menu_hc",
                         uiOutput('clustering_panel')
@@ -395,9 +380,22 @@ dashboardBody(
 server <- function(input, output, session) {
 
 
+  output$som_panels<-renderUI({
+    req(length(saved_data$df)>0)
+    tabsetPanel(
+      id = "som_tab",
+      tabPanel(
+        strong("1. Training"), value = "som_tab1",
+        uiOutput("training_panel")
 
+      )
+
+
+    )
+  })
 
   output$menu_data<-renderUI({
+    req(length(saved_data$df)>0)
     fluidPage(
       h4(strong("Data bank")),
       selectInput("data_bank", "Dataset", choices=names(saved_data$df), selectize = F),
@@ -1172,7 +1170,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
                                      h5(strong("Data:",style="color:  SeaGreen"),
                                         popify(actionLink('uphelp', icon("fas fa-question-circle")),"Upload the observations",textupload(), trigger = "hover",options=list(container="body"))),
                                      if(input$up_or_ex=='upload') {
-                                       column(12,style="margin-bottom:-35px;",
+                                       fluidRow(12,style="margin-bottom:-35px;",
                                               fileInput(inputId = "filedata",label = NULL,accept = c(".csv"), placeholder=if(length(input$filedata$datapath)>0){input$filedata$name})
                                        )
                                      }else{em("nematodes from Araca Bay, Brazil")}),
@@ -1344,6 +1342,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
 
   output$som_control<-renderUI({
+    req(length(saved_data$df)>0)
     column(12,splitLayout(
       radioButtons("train_or_load",NULL,c("Train data","See Results")),
       uiOutput("data_som"),
@@ -1608,7 +1607,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
     showModal(
       modalDialog(
         column(12,
-               column(12,p(strong("Warning:", style="color: red"),"The application will restart with the loaded savepoint and unsaved changes will be lost"))),
+               column(12,p(strong("Warning:", style="color: #0093fcff"),"The application will restart with the loaded savepoint and unsaved changes will be lost"))),
         title="Are you sure? ",
         footer = column(12,actionButton("load_savepoint_yes","Proceed"),modalButton("close"))
 
@@ -1710,6 +1709,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
   output$divname <- renderUI({textInput("divname",NULL,value = paste0("Div_res", saved_divset_value$df))})
 
   output$divtabs <- renderUI({
+    req(length(saved_data$df)>0)
     column(12,
            h5(strong("Diversity indexes")),
            column(12,
@@ -1840,6 +1840,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
 
   output$choices_map <- renderUI({
+    req(length(saved_data$df)>0)
     fluidRow(style="background: white;",
              br(),
              column(3,uiOutput("data_map")),
@@ -2177,6 +2178,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
 
   output$choices_rf <- renderUI({
+    req(length(saved_data$df)>0)
     column(12,
            column(12,style="margin-left: -20px; margin-bottom: 10px",
                   column(1,strong("Type:",style="color: #0D47A1")),
@@ -2268,7 +2270,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
   output$rf_panel <- renderUI({
 
-
+    req(length(saved_data$df)>0)
     column(12,
            validate(need(sum(unlist(lapply(getdata_rf02(), function(x) identical(x,get_supervisor()[,1]))))==0,"The independent variable (Y) cannot be contained in the set of explanatory variables (X).")),
 
@@ -2605,8 +2607,8 @@ output$textbreak<-renderText("This action creates a single binary column per fac
   })
   output$upload_mainpanel<-renderUI({
 
-    if(isTRUE(bagdata$df)){col="gray"} else{ col="red"}
-    background<-paste("border: 1px solid",col)
+    if(isTRUE(bagdata$df)){col="gray"} else{ col="#0093fcff"}
+    background<-paste("border: 2px solid",col)
 
     column(12,style=background,
            conditionalPanel("input.stats0=='stats_classmat'",{uiOutput("pop_classmat")}),
@@ -2622,6 +2624,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
     )
   })
+
 
 
 
@@ -2776,18 +2779,28 @@ output$textbreak<-renderText("This action creates a single binary column per fac
   })
 
   output$upload_side<-renderUI({
+    req(length(saved_data$df)>0)
     getupload_side()
   })
 
   #
   saved_data<-reactiveValues()
   output$output_data_upload<-renderUI({
-    if(cur_data$df==0){cur=names(saved_data$df)[1]} else {cur=cur_data$df}
-    if(isTRUE(bagdata$df)){col="gray"} else{ col="red"}
-    change_alert<-paste0("#data_upload {border-color:",col,";}")
-    div(
-      tags$style(change_alert),
-      selectInput("data_upload",NULL,choices=names(saved_data$df), selectize = F, selected=cur))
+    if(length(saved_data$df)<1) {
+      column(12,
+             p(style="margin-top: 10px;",
+               icon("fas fa-hand-point-left", style="font-size: 30px; color: SeaGreen"),em("Get started by creating a Datalist")
+             ))
+    } else {
+
+      if(cur_data$df==0){cur=names(saved_data$df)[1]} else {cur=cur_data$df}
+      if(isTRUE(bagdata$df)){col="gray"} else{ col="#0093fcff"}
+      change_alert<-paste0("#data_upload {border-color:",col,";border-width: 2px;}")
+      div(
+        tags$style(change_alert),
+        selectInput("data_upload",NULL,choices=names(saved_data$df), selectize = F, selected=cur))
+    }
+
   })
 
   output$upload_tools<-renderUI({
@@ -2807,31 +2820,33 @@ output$textbreak<-renderText("This action creates a single binary column per fac
                       )
                       ,
                       absolutePanel(style="margin-top: 0px",
-                                    div(id="upload_tools",
-
-                                        popify(bsButton("tools_selobs", icon("fas fa-list"),style  = "button_active", type="toggle"),NULL,
-                                               "Select observations",options=list(container="body")
-                                        ),
-                                        popify(bsButton("tools_selvar", icon("fas fa-list fa-rotate-90"),style  = "button_active", type="toggle"),NULL,
-                                               "Select variables",options=list(container="body")
-                                        ),
-                                        popify(bsButton("tools_transform", icon("fas fa-hammer"),style  = "button_active", type="toggle"),NULL,
-                                               "Transform data",options=list(container="body")
-                                        ),
-                                        popify(bsButton("tools_edit", icon("fas fa-image"),style  = "button_active", type="toggle",disabled=T, value=F),NULL,
-                                               "Edit plot",options=list(container="body")
-                                        ),
-                                        popify(bsButton("tools_save", icon("fas fa-save"),style  = "button_active", type="action",value=FALSE),"Save changes",
-                                               "Transformed/ filtered data can be saved as a new datalist or overwrite the original datalist",options=list(container="body")
-                                        )
-                                    )
+                                    uiOutput("tools_bar")
                       ),
                       cellWidths = c("40%","20%")
                     )
            ))
   })
 
-
+output$tools_bar<-renderUI({
+  req(length(saved_data$df)>0)
+  div(id="upload_tools",
+      popify(bsButton("tools_selobs", icon("fas fa-list"),style  = "button_active", type="toggle"),NULL,
+             "Select observations",options=list(container="body")
+      ),
+      popify(bsButton("tools_selvar", icon("fas fa-list fa-rotate-90"),style  = "button_active", type="toggle"),NULL,
+             "Select variables",options=list(container="body")
+      ),
+      popify(bsButton("tools_transform", icon("fas fa-hammer"),style  = "button_active", type="toggle"),NULL,
+             "Transform data",options=list(container="body")
+      ),
+      popify(bsButton("tools_edit", icon("fas fa-image"),style  = "button_active", type="toggle",disabled=T, value=F),NULL,
+             "Edit plot",options=list(container="body")
+      ),
+      popify(bsButton("tools_save", icon("fas fa-save"),style  = "button_active", type="action",value=FALSE),"Save changes",
+             "Transformed/ filtered data can be saved as a new datalist or overwrite the original datalist",options=list(container="body")
+      )
+  )
+})
 
   observeEvent(input$tools_transform,{
     if(input$tools_transform %% 2){
@@ -3566,6 +3581,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
 
 
   output$map_control<-renderUI({
+    req(length(saved_data$df)>0)
     fluidRow(
       column(12, style="background: white;",
              fluidRow(style="margin-top: 15px;",
@@ -6771,10 +6787,11 @@ output$textbreak<-renderText("This action creates a single binary column per fac
   })
 
   output$choicesHC<-renderUI({
+
     radioButtons("model_or_data", "Clustering target", choices = choices_hc(), selected=c(choices_hc()[length(choices_hc())]))
   })
   hc_control <- reactive({
-
+    req(length(saved_data$df)>0)
     column(12,
       splitLayout(cellWidths = c("20%","30%","25%","25%"),
         uiOutput("choicesHC"),
@@ -6928,6 +6945,7 @@ output$textbreak<-renderText("This action creates a single binary column per fac
     hc0panel()
   })
   output$dt_panel<-renderUI({
+    req(length(saved_data$df)>0)
     column(12,style="background: white; margin: 20 20 20 20",
            column(12,style="margin-top: 20px",
                   splitLayout(
