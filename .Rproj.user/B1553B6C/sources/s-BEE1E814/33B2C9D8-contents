@@ -9,3 +9,7 @@ git remote add origin https://github.com/DaniloCVieira/menvi.git
 #
 library(shiny)
 runGitHub('menvi','DaniloCVieira', ref="main")
+
+git push menvi main
+
+git push -u origin main
